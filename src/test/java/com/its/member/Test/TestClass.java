@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.stream.IntStream;
 
 
@@ -41,5 +43,20 @@ public class TestClass {
         boolean login = memberService.login(loginDTO);
 
         assertThat(login).isEqualTo(true);
+    }
+
+    @Test
+    @Transactional
+    @Rollback(value = true)
+    @DisplayName("findAll 테스트")
+    public void findAllTest(){
+        IntStream.rangeClosed(1, 3).forEach(i -> {
+            MemberDTO memberDTO = new MemberDTO("Test" + i,"Test" + i,"Test" + i, (long) i,"Test" + i);
+            memberService.save(memberDTO);
+        });
+
+        List<MemberDTO> memberDTOList = memberService.findAll();
+
+        assertThat(memberDTOList.size()).isEqualTo(3);
     }
 }

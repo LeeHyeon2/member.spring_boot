@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{
+<html lang="en" xmlns:th="http://www.thymeleaf.org">}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h2>member.html</h2>
+    <table>
+        <tr>
+            <td>Email</td>
+            <td>Name</td>
+            <td>수정</td>
+            <td>삭제</td>
+        </tr>
+        <tr th:each="memberDTO : ${memberDTOList}">
+            <td th:text="${memberDTO.memberEmail}"></td>
+            <td th:text="${memberDTO.memberName}"></td>
+            <td><a th:href="@{/member/delete/{id}(id=${memberDTO.id})}">삭제</a></td>
+            <td><a th:href="@{/member/update/{id}(id=${memberDTO.id})}">수정</a></td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -4,10 +4,12 @@ import com.its.member.dto.MemberDTO;
 import com.its.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,13 +39,30 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute MemberDTO memberDTO){
+    public String login(@ModelAttribute MemberDTO memberDTO , HttpServletRequest request) {
+        HttpSession session = request.getSession();
         Boolean login = memberService.login(memberDTO);
 
         if(login){
+            session.setAttribute("loginEmail",memberDTO.getMemberEmail());
             return "/memberPages/main";
         }else {
             return "/index";
         }
     }
+
+    @GetMapping("/")
+    public String main(Model model){
+        List<MemberDTO> memberDTOList = memberService.findAll();
+        model.addAttribute("memberDTOList",memberDTOList);
+        return "/memberPages/member";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Long id){
+        memberService.delete(id);
+        return "redirect:/member/";
+    }
+
+
 }
