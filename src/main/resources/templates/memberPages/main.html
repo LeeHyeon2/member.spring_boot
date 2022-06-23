@@ -7,6 +7,7 @@
 <body>
   <h2>Main</h2>
   <a href="/member/">회원목록 출력</a>
-    <h2 th:text="${loginEmail}">여기</h2>
+    <h2 th:text="${session.id}"></h2>
+  <h2 th:text="${session.loginEmail}"></h2>
 </body>
 </html>

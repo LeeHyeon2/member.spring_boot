@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <title>Title</title>
+</head>
+<body>
+<h2>list.html</h2>
+<table>
+  <tr>
+    <td>id</td>
+    <td>Email</td>
+    <td>Name</td>
+    <td>Age</td>
+    <td>Phone</td>
+    <td>상세조회</td>
+    <td>수정</td>
+    <td>삭제</td>
+  </tr>
+  <tr th:each="memberDTO : ${memberDTOList}">
+    <td th:text="${memberDTO.id}"></td>
+    <td th:text="${memberDTO.memberEmail}"></td>
+    <td th:text="${memberDTO.memberName}"></td>
+    <td th:text="${memberDTO.memberAge}"></td>
+    <td th:text="${memberDTO.memberPhone}"></td>
+    <td><a th:href="@{|/member/${memberDTO.id}|}">조회</a></td>
+    <td><a th:href="@{/member/delete/{id}(id=${memberDTO.id})}">삭제</a></td>
+    <td><a th:href="@{/member/update/{id}(id=${memberDTO.id})}">수정</a></td>
+    <td><button th:onclick="detail([[${memberDTO.id}]])">조회(ajax)</button></td>
+  </tr>
+</table>
+<div id="member-detail">
+</div>
+</body>
+<script th:inline="javascript">
+  function detail(id){
+    $.ajax({
+      url:"/member/ajax/"+id,
+      type:"get",
+      dataType:"json",
+      success:function (result){
+        let text = "<table class='table'>";
+        text += "<tr><th>id</th><th>Email</th></tr>";
+        text += "<tr>";
+        text += "<td>"+result.id+"</td>";
+        text += "<td>"+result.memberEmail+"</td>";
+        text += "</tr>";
+        document.getElementById("member-detail").innerHTML = text;
+      },
+      error:function (){
+        alert("실패");
+      }
+    });
+  }
+</script>
+</html>

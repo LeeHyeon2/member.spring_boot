@@ -19,9 +19,9 @@ public class MemberService {
 
     public Long save(MemberDTO memberDTO) {
         MemberEntity memberEntity = MemberEntity.toEntity(memberDTO);
-        Long id = memberRepository.save(memberEntity).getId();
+        Long savedId = memberRepository.save(memberEntity).getId();
 
-        return id;
+        return savedId;
 
     }
 
@@ -34,14 +34,18 @@ public class MemberService {
         }
     }
 
-    public Boolean login(MemberDTO memberDTO) {
-        MemberEntity memberEntity = MemberEntity.toEntity(memberDTO);
-        MemberEntity memberEntity1 = this.memberRepository.login(memberEntity.getMemberEmail(),memberEntity.getMemberPassword());
+    public MemberDTO login(MemberDTO memberDTO) {
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByMemberEmail(memberDTO.getMemberEmail());
+        if (optionalMemberEntity.isPresent()){
+            MemberEntity loginEntity = optionalMemberEntity.get();
+            if (loginEntity.getMemberPassword().equals(memberDTO.getMemberPassword())){
+                return MemberDTO.toDTO(loginEntity);
+            }else {
+                return null;
+            }
 
-        if (memberEntity1 == null){
-            return false;
-        } else {
-            return true;
+        }else {
+            return null;
         }
     }
 
@@ -58,5 +62,12 @@ public class MemberService {
 
     public void delete(Long id) {
         memberRepository.deleteById(id);
+    }
+
+    public void update(MemberDTO memberDTO) {
+        MemberEntity memberEntity = MemberEntity.toEntity(memberDTO);
+        memberEntity.setId(memberDTO.getId());
+
+        memberRepository.save(memberEntity);
     }
 }

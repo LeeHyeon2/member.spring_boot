@@ -24,13 +24,9 @@ public class MemberController {
 
     @PostMapping("/save")
     public String save(@ModelAttribute MemberDTO memberDTO){
-        Long id = memberService.save(memberDTO);
+        memberService.save(memberDTO);
 
-        if (id >= 0){
-            return "redirect:/member/login-form";
-        }else {
-            return "/index";
-        }
+        return "redirect:/member/login-form";
     }
 
     @GetMapping("/login-form")
@@ -39,12 +35,19 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute MemberDTO memberDTO , HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Boolean login = memberService.login(memberDTO);
+    public String login(@ModelAttribute MemberDTO memberDTO ,  HttpSession session) {
+        /**
+         * login.html 에서 이메일 , 비번을 받아오고
+         * DB로 부터 해당 이메일의 정보를 가져와서
+         * 입력받은 비번과 db예서 조회한 비번의 일치여부를 판단하여
+         * 일치하면 로그인 성공, 일치하지 않으면 로그인 실패로 처리
+         */
 
-        if(login){
-            session.setAttribute("loginEmail",memberDTO.getMemberEmail());
+        MemberDTO login = memberService.login(memberDTO);
+
+        if(login != null){
+            session.setAttribute("loginEmail",login.getMemberEmail());
+            session.setAttribute("id",login.getId());
             return "/memberPages/main";
         }else {
             return "/index";
@@ -55,7 +58,7 @@ public class MemberController {
     public String main(Model model){
         List<MemberDTO> memberDTOList = memberService.findAll();
         model.addAttribute("memberDTOList",memberDTOList);
-        return "/memberPages/member";
+        return "/memberPages/list";
     }
 
     @GetMapping("/delete/{id}")
@@ -64,5 +67,31 @@ public class MemberController {
         return "redirect:/member/";
     }
 
+    @GetMapping("/update/{id}")
+    public String updateForm(@PathVariable Long id , Model model){
+        MemberDTO memberDTO = memberService.findById(id);
+        model.addAttribute("memberDTO",memberDTO);
+        return "/memberPages/update";
+    }
 
+    @PostMapping("/update")
+    public String update(@ModelAttribute MemberDTO memberDTO){
+        memberService.update(memberDTO);
+        return "/memberPages/main";
+    }
+
+    // /member/3
+    // /member?id=3
+    @GetMapping("/{id}")
+    public String findById(@PathVariable Long id , Model model){
+        MemberDTO memberDTO = memberService.findById(id);
+        model.addAttribute("memberDTO",memberDTO);
+        return "/memberPages/detail";
+    }
+
+    // ajax 상세조회
+    @GetMapping("/ajax/{id}")
+    public @ResponseBody MemberDTO ajaxId(@PathVariable Long id){
+        return memberService.findById(id);
+    }
 }
