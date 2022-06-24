@@ -2,19 +2,77 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <title>Title</title>
 </head>
 <body>
     <h2>update</h2>
     <form action="/member/update" method="post">
-        <input type="hidden" th:value="${memberDTO.id}" name="id"> <br>
-        <input type="text" th:value="${memberDTO.memberEmail}" name="memberEmail" placeholder="Email"> <br>
-        <input type="text" th:value="${memberDTO.memberPassword}" name="memberPassword" placeholder="Password"> <br>
-        <input type="text" th:value="${memberDTO.memberName}" name="memberName" placeholder="Name"> <br>
-        <input type="text" th:value="${memberDTO.memberAge}" name="memberAge" placeholder="Age"> <br>
-        <input type="text" th:value="${memberDTO.memberPhone}" name="memberPhone" placeholder="Phone"> <br>
+        <input type="hidden" th:value="${memberDTO.id}" name="id" id="id"> <br>
+        <input type="text" th:value="${memberDTO.memberEmail}" name="memberEmail" id="memberEmail" placeholder="Email"> <br>
+        <input type="text" th:value="${memberDTO.memberPassword}" name="memberPassword" id="memberPassword" placeholder="Password"> <br>
+        <input type="text" th:value="${memberDTO.memberName}" name="memberName" id="memberName" placeholder="Name"> <br>
+        <input type="text" th:value="${memberDTO.memberAge}" name="memberAge" id="memberAge" placeholder="Age"> <br>
+        <input type="text" th:value="${memberDTO.memberPhone}" name="memberPhone" id="memberPhone" placeholder="Phone"> <br>
         <input type="submit" value="수정">
+        <button th:onclick="update([[${id}]])">수정(ajax)</button>
+        <button th:onclick="update1()">수정(ajax1)</button>
     </form>
-
 </body>
+<script>
+    function update(id){
+        const id1 = document.getElementById("id").value;
+        const email = document.getElementById("memberEmail").value;
+        const password = document.getElementById("memberPassword").value;
+        const name = document.getElementById("memberName").value;
+        const age = document.getElementById("memberAge").value;
+        const phone = document.getElementById("memberPhone").value;
+
+        $.ajax({
+            url:"/member/"+id,
+            type:"put",
+            data:{
+                "id":id1,
+                "memberEmail":email,
+                "memberPassword":password,
+                "memberName":name,
+                "memberAge":age,
+                "memberPhone":phone
+            },
+            success: function (){
+                location.href = "/member/update/"+id;
+            }
+        });
+    }
+    function update1(){
+        const id1 = document.getElementById("id").value;
+        const email = document.getElementById("memberEmail").value;
+        const password = document.getElementById("memberPassword").value;
+        const name = document.getElementById("memberName").value;
+        const age = document.getElementById("memberAge").value;
+        const phone = document.getElementById("memberPhone").value;
+
+        const updateData = JSON.stringify({
+            id : id1,
+            memberEmail : email,
+            memberPassword:password,
+            memberName : name,
+            memberAge : age,
+            memberPhone : phone
+        });
+
+        $.ajax({
+           type: "put",
+           data : updateData,
+           url : "/member/ajax/"+id1,
+           contentType : "application/json",
+            success:function (){
+               location.href = "/member/update"+id;
+            },
+            error:function (){
+               alert("실패");
+            }
+        });
+    }
+</script>
 </html>

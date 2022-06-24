@@ -66,9 +66,9 @@ public class MemberTest {
     @Test
     @Transactional
     @Rollback(value = true)
-    @DisplayName("update 테스트")
+    @DisplayName("delete 테스트")
     public void deleteTest(){
-        Long saveId = memberService.save(newMember(1));
+        Long saveId = memberService.save(newMember(999));
         memberService.delete(saveId);
         assertThat(memberService.findById(saveId)).isNull();
     }

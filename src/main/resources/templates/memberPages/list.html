@@ -15,7 +15,7 @@
     <td>Age</td>
     <td>Phone</td>
     <td>상세조회</td>
-    <td>수정</td>
+    <td>수정페이지</td>
     <td>삭제</td>
   </tr>
   <tr th:each="memberDTO : ${memberDTOList}">
@@ -26,12 +26,18 @@
     <td th:text="${memberDTO.memberPhone}"></td>
     <td><a th:href="@{|/member/${memberDTO.id}|}">조회</a></td>
     <td><a th:href="@{/member/delete/{id}(id=${memberDTO.id})}">삭제</a></td>
-    <td><a th:href="@{/member/update/{id}(id=${memberDTO.id})}">수정</a></td>
+    <!-- 삭제 요청을 ajax로 type을 post가 아닌 delete로 하고 controller에서 @DeleteMapping을 사용함. (삭제하는 코드는 동일함)-->
+    <td><button th:onclick="delete1([[${memberDTO.id}]])">삭제(ajax)</button></td>
+    <td><a th:href="@{/member/update/{id}(id=${memberDTO.id})}">수정페이지</a></td>
     <td><button th:onclick="detail([[${memberDTO.id}]])">조회(ajax)</button></td>
   </tr>
 </table>
+
+
 <div id="member-detail">
 </div>
+
+
 </body>
 <script th:inline="javascript">
   function detail(id){
@@ -49,6 +55,20 @@
         document.getElementById("member-detail").innerHTML = text;
       },
       error:function (){
+        alert("실패");
+      }
+    });
+  };
+
+  function delete1(id){
+    $.ajax({
+      url: "/member/"+id,
+      type: "delete",
+      // dataType:"text",
+      success:function(){ // status code = 200
+        location.href = "/member/" // redirect 개념
+      },
+      error:function(){
         alert("실패");
       }
     });

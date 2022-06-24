@@ -60,7 +60,7 @@ public class MemberService {
     }
 
 
-    public void delete(Long id) {
+    public void delete(Long id)  {
         memberRepository.deleteById(id);
     }
 
@@ -69,5 +69,14 @@ public class MemberService {
         memberEntity.setId(memberDTO.getId());
 
         memberRepository.save(memberEntity);
+    }
+
+    public String dupCheck(String email) {
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByMemberEmail(email);
+        if (optionalMemberEntity.isPresent()){
+            return "no";
+            }else{
+            return "ok";
+        }
     }
 }

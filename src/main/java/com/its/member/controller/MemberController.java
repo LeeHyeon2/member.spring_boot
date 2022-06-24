@@ -3,6 +3,8 @@ package com.its.member.controller;
 import com.its.member.dto.MemberDTO;
 import com.its.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +32,16 @@ public class MemberController {
     }
 
     @GetMapping("/login-form")
-    public String loginForm(){
+    public String loginForm(@RequestParam(value = "redirectURL", defaultValue = "/member/") String redirectURL,
+                            Model model){
+        model.addAttribute("redirectURL",redirectURL);
         return "/memberPages/login";
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute MemberDTO memberDTO ,  HttpSession session) {
+    public String login(@ModelAttribute MemberDTO memberDTO ,  HttpSession session,
+                        @RequestParam(value = "redirectURL", defaultValue = "/member/") String redirectURL,
+                        Model model) {
         /**
          * login.html 에서 이메일 , 비번을 받아오고
          * DB로 부터 해당 이메일의 정보를 가져와서
@@ -46,9 +52,10 @@ public class MemberController {
         MemberDTO login = memberService.login(memberDTO);
 
         if(login != null){
+            model.addAttribute("redirectURL",redirectURL);
             session.setAttribute("loginEmail",login.getMemberEmail());
             session.setAttribute("id",login.getId());
-            return "/memberPages/main";
+            return "redirect:" + redirectURL;
         }else {
             return "/index";
         }
@@ -93,5 +100,44 @@ public class MemberController {
     @GetMapping("/ajax/{id}")
     public @ResponseBody MemberDTO ajaxId(@PathVariable Long id){
         return memberService.findById(id);
+    }
+
+    /**
+     * /member/3 : 조회(get) R, 저장(post) C, 수정(put) U, 삭제(delete) D
+     */
+    @DeleteMapping("/delete/{id}")
+    public @ResponseBody List<MemberDTO> deleteAjax(@PathVariable Long id){
+        memberService.delete(id);
+        return memberService.findAll();
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity ajaxDelete(@PathVariable Long id){
+        memberService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK); // ajax 호출한 부분에 리턴으로 200응답을 줌.
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity updateAjax(@PathVariable Long id , @ModelAttribute MemberDTO memberDTO){
+        memberService.update(memberDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/dup-check")
+    public @ResponseBody String dupCheck(@RequestParam("memberEmail") String email){
+        return memberService.dupCheck(email);
+    }
+
+    @PutMapping("/ajax/{id}")
+    public ResponseEntity updateByAjax(@RequestBody MemberDTO memberDTO){
+        memberService.update(memberDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session){
+        session.invalidate();
+        return "redirect:/";
     }
 }
